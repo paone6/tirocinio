@@ -395,7 +395,7 @@ class EditVideo(object):
 print("Start...")
 
 editVideo = EditVideo("/Users/paone/Desktop/VideoDataset/frameVideo/Video", "/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", "/Users/paone/Desktop/VideoDataset/frameVideo", 30, 3, 15)
-"""
+
 path = "/Users/paone/Desktop/prova_video"
 numVideo = 0
 nameVideo = ""
@@ -445,6 +445,8 @@ for directory in os.listdir(path):
                                     shutil.move(completePathVideo, "/Users/paone/Desktop/Video_Computati/" + nameVideo)
                                     numVideo = numVideo + 1
 
-"""
+
+editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo", ".jpg")
 editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
+
 print("Fine")
