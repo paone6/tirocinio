@@ -446,5 +446,5 @@ for directory in os.listdir(path):
                                     numVideo = numVideo + 1
 
 """
-editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo", ".jpg")
+editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
 print("Fine")
