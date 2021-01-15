@@ -25,31 +25,21 @@ import psutil
 #Path completo del video
 completePath = ""
 
-#Contiene tutto il rigo del file csv
-arrayGlobalFileCSV = []
-#Contiene il rigo di un singolo frame
-arrayRowFileCSV = []
-
 class EditVideo(object):
 
-    directoryDestination = None
+    directoryDestinationFrame = None
     directoryDestinationVideo = None
-    directoryDestinationFullVideo = None
     frameRate = 0
     durataMaxSecVideo = 0
     numChunk = 0
-    pathCSV = ""
 
-    def __init__(self, whereSaveVideo, whereSaveFullVideo, whereSaveFrame, frameRate = 24, groupOfContiguosFrame = 6, durataMaxSecVideo = 600):
+    def __init__(self, whereSaveVideo, whereSaveFrame, frameRate = 24, groupOfContiguosFrame = 6, durataMaxSecVideo = 600):
         
         #Dove saranno salvati i singoli frame del video
         self.directoryDestinationFrame = whereSaveFrame
         
         #Dove sara' salvati i video prodotti dal programma
         self.directoryDestinationVideo = whereSaveVideo
-
-        #Dove sara' salvato il video senza ritagli
-        #self.directoryDestinationFullVideo = whereSaveFullVideo
 
         #frameRate del video
         self.setFrameRate(frameRate)
@@ -79,13 +69,11 @@ class EditVideo(object):
         durataTotVideo = 0
         videoToEdit = cv2.VideoCapture(sourceVideo)
 
-        arrayTempRow = [] #Contine valori che vsnno inseriti alla fine del file csv
+        
 
         print("Provo ad aprire il file video: " + sourceVideo)
         if videoToEdit.isOpened() == False:
             return False
-
-        #face_cascade = cv2.CascadeClassifier('/Users/francescorullo/opt/anaconda3/pkgs/libopencv-3.4.2-h7c891bd_1/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
         
         eye_cascade = cv2.CascadeClassifier('/Users/paone/anaconda3/pkgs/libopencv-3.4.2-h7c891bd_1/share/OpenCV/haarcascades/haarcascade_eye.xml')
         mouth_cascade = cv2.CascadeClassifier('/Users/paone/Desktop/OpenCV/haarcascade_mcs_mouth.xml')
@@ -117,8 +105,6 @@ class EditVideo(object):
             os.chdir(self.directoryDestinationFrame)
 
             nameVideo = namePicture.split('.')[0]
-            arrayRowFileCSV.append(nameVideo) #1 Nome video
-            arrayRowFileCSV.append(self.frameRate) #2 FPS ATTENZIONE TALE INFORMAZIONE VA PRESA DAL NOME DEL VIDEO
 
             if isResize:
                 if (percentSizeFrame == -1):
@@ -148,10 +134,6 @@ class EditVideo(object):
             #Volto
             #faces = face_cascade.detectMultiScale(gray, 1.3, 5)
             faces_dlib = detector(gray, 0) #dlib detector
-
-            #if len(faces) == 0 and os.path.exists(namePicture + "%d" % count + extension):
-                    #self.frameDelete(namePicture + "%d" % count + extension)
-                    #effectiveCountFrame -= 1
 
             isFaceVisible = False
             for face in faces_dlib:
@@ -269,22 +251,10 @@ class EditVideo(object):
             cv2.imwrite(namePicture + "%d" % count + extension, imageFullVideo)
             count += 1
 
-            if (len(arrayTempRow) > 1):
-                arrayRowFileCSV.append(arrayTempRow[0]) #5Num di lanmarks
-                arrayRowFileCSV.append(arrayTempRow[1]) #6 Coordiante dei landmarks
-                arrayRowFileCSV.append(arrayTempRow[2]) #7 distanza punti 1 a tutti separati con ,
-            else:
-                arrayRowFileCSV.append("0") #5 Num di landmarks
-
-            arrayGlobalFileCSV.append(arrayRowFileCSV.copy())
             
             success,image = videoToEdit.read()
 
-            editVideo.openCSVFile(self.pathCSV, "a", ",", arrayGlobalFileCSV)
-            arrayRowFileCSV.clear()
-            arrayGlobalFileCSV.clear()
-            arrayTempRow.clear()
-
+           
             if showImage:
                 cv2.imshow('image',image)
                 cv2.waitKey(0)
@@ -309,36 +279,7 @@ class EditVideo(object):
         for filename in glob.glob(path + '/*' + extension):
             os.remove(filename)
 
-    #Assembla i frame creati dalla procedura pictureCrate creando un video
-    def videoCreate(self, extensionFrame, nameVideo, directoryVideoSaved):
-
-        os.chdir(directoryVideoSaved)
-
-        image_array = []
-        for filename in sorted(glob.glob(self.directoryDestinationFrame + '/*' + extensionFrame), key=os.path.getmtime):
-            
-            #print("---> " + filename)
-            image = cv2.imread(filename)
-            height, width, layers = image.shape
-            size = (width,height)
-            image_array.append(image)
-        
-        print("<--- Numero Frame inseriti nel video: " + str(len(image_array)) + "--->")
-
-        if len(image_array) == 0:
-            return False
-
-        else:
-            videoName = nameVideo + ".avi"
-            out = cv2.VideoWriter(videoName,cv2.VideoWriter_fourcc(*'DIVX'), self.frameRate, size)
-        
-            for i in range(len(image_array)):
-                out.write(image_array[i])
-
-            out.release()
-            
-            return True
-    
+   
     #Assembla i frame creati dalla procedura pictureCrate creando un video
     def videoFullCreate(self, extensionFrame, nameVideo, directoryVideoSaved):
 
@@ -380,17 +321,7 @@ class EditVideo(object):
 
         return (x, y, w, h)
     
-    #Apre/crea il file CSV
-    def openCSVFile(self, withName, mode, separetor, listOfDataToWrite = None):
-        
-        with open(withName, mode, newline='') as file:
-            if mode == 'r':
-                reader = csv.reader(file, delimiter = separetor)
-                for row in reader:
-                    print(row)
-            elif mode == 'w' or mode == 'a':
-                writer = csv.writer(file)
-                writer.writerows(listOfDataToWrite)
+    
 
 print("Start...")
 
@@ -440,10 +371,10 @@ for directory in os.listdir(path):
                                 isSuccess = editVideo.pictureCreate(completePathVideo, nameVideo, ".jpg", False, True, -1, False)
                                 #isVideoCreated = editVideo.videoCreate(".jpg", nameVideo + str(numVideo)) #Creo un video con i frame rimanenti
                                 print("Fine Video num: " + str(numVideo) + " - " + nameVideo)
-                                #if isSuccess:
-                                #    editVideo.videoFullCreate(".jpg", nameVideo, editVideo.directoryDestinationFullVideo)
-                                #    shutil.move(completePathVideo, "/Users/paone/Desktop/Video_Computati/" + nameVideo)
-                                #    numVideo = numVideo + 1
+                                if isSuccess:
+                                    editVideo.videoFullCreate(".jpg", nameVideo, editVideo.directoryDestinationFullVideo)
+                                    shutil.move(completePathVideo, "/Users/paone/Desktop/Video_Computati/" + nameVideo)
+                                    numVideo = numVideo + 1
 
 
 editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo", ".jpg")
