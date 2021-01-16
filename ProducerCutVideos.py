@@ -162,21 +162,8 @@ class EditVideo(object):
                         arrayCoordinate.append((xy[0], xy[1]))
                     arrayTempRow.append(arrayCoordinate) #6 Cooridnate dei landmark (vengono inseriti infondo questo è un array temporaneo)
 
-                    #Caloclo la distanza dei landmark con la strategia 1 a tutti
-                    arrayDistanzePunti = []
-                    for landmark_numX, xy in enumerate(landmarks_list, start=1):
-                        coordinatePivotX = xy[0]
-                        coordinatePivotY = xy[1]
-                        for landmark_numY, xy in enumerate(landmarks_list, start = landmark_numX + 1):
-                            coordinatePointX = xy[0]
-                            coordinatePointY = xy[1]
-                            #calcolo distanza euclidea
-                            distanza = math.sqrt((coordinatePivotX - coordinatePointX)**2 + (coordinatePivotY - coordinatePointY)**2)
-                            arrayDistanzePunti.append(str(distanza) + ",")
-                    arrayTempRow.append(arrayDistanzePunti) #7 Distanza punti 1 a tutti
-                            
+                   
 
-                #self.distanceLandmarks(landmarks_list)
 
                 if isDrawRectangleActive:
                     for landmark_num, xy in enumerate(landmarks_list, start = 1):
@@ -233,12 +220,8 @@ class EditVideo(object):
                     effectiveCountFrameCountiguos = 0
                     arrayImageFrameCountiguos.clear()
 
-            if (isFaceVisible):
-                arrayRowFileCSV.append("SI") #3 e' presente un volto
-            else:
-                arrayRowFileCSV.append("NO") #3 e' presente un volto
+           
 
-            arrayRowFileCSV.append(str(count)) #4 Frame corrente
 
             os.chdir(self.directoryDestinationFullVideo)
             if (isFaceVisible):
@@ -325,8 +308,8 @@ class EditVideo(object):
 
 print("Start...")
 
-editVideo = EditVideo("/Users/paone/Desktop/VideoDataset/frameVideo/Video", "/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", "/Users/paone/Desktop/VideoDataset/frameVideo", 30, 3, 15)
-
+editVideo = EditVideo("/Users/paone/Desktop/VideoDataset/frameVideo/Video",  "/Users/paone/Desktop/VideoDataset/frameVideo", 30, 3, 15)
+'''
 path = "/Users/paone/Desktop/prova_video"
 numVideo = 0
 nameVideo = ""
@@ -362,11 +345,7 @@ for directory in os.listdir(path):
                                     editVideo.setContiguosFrames(3)
 
                                 editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo", ".jpg")
-                                editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
                                 completePathVideo = subPathVideo + "/" + fileVideo
-                                listTitleCSVFile = [["NameVideo", "FPS", "isFaceVisible", "FrameCount", "LandmarksNum", "LandmarksCoordinate...", "DistanceLandmarks"]]
-                                editVideo.pathCSV = "/Users/paone/Desktop/VideoDataset/" + nameVideo.split('.')[0] + ".csv"
-                                editVideo.openCSVFile(editVideo.pathCSV, "w", ",", listTitleCSVFile)
                                 print("Video: " + completePathVideo)
                                 isSuccess = editVideo.pictureCreate(completePathVideo, nameVideo, ".jpg", False, True, -1, False)
                                 #isVideoCreated = editVideo.videoCreate(".jpg", nameVideo + str(numVideo)) #Creo un video con i frame rimanenti
@@ -376,8 +355,8 @@ for directory in os.listdir(path):
                                     shutil.move(completePathVideo, "/Users/paone/Desktop/Video_Computati/" + nameVideo)
                                     numVideo = numVideo + 1
 
-
-editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo", ".jpg")
-editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
+'''
+editVideo.picturesDelete("/Users/paone/tirocinio", ".jpg")
+#editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
 
 print("Fine")
