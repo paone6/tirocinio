@@ -29,6 +29,7 @@ class EditVideo(object):
 
     directoryDestinationFrame = None
     directoryDestinationVideo = None
+    directoryDestinationFullVideo = None
     frameRate = 0
     durataMaxSecVideo = 0
     numChunk = 0
@@ -41,6 +42,7 @@ class EditVideo(object):
         #Dove sara' salvati i video prodotti dal programma
         self.directoryDestinationVideo = whereSaveVideo
 
+        self.directoryDestinationFullVideo = "/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo"
         #frameRate del video
         self.setFrameRate(frameRate)
 
@@ -63,17 +65,20 @@ class EditVideo(object):
         else:
             self.NUM_FRAME_CONTIGUOS = 1
 
+  
     def pictureCreate(self, sourceVideo, namePicture, extension, showImage = False, isResize = True, percentSizeFrame = 30, drawRectOnImage = False):
 
         isDrawRectangleActive = drawRectOnImage
         durataTotVideo = 0
         videoToEdit = cv2.VideoCapture(sourceVideo)
 
-        
+        arrayTempRow = [] #Contine valori che vsnno inseriti alla fine del file csv
 
         print("Provo ad aprire il file video: " + sourceVideo)
         if videoToEdit.isOpened() == False:
             return False
+
+        #face_cascade = cv2.CascadeClassifier('/Users/francescorullo/opt/anaconda3/pkgs/libopencv-3.4.2-h7c891bd_1/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
         
         eye_cascade = cv2.CascadeClassifier('/Users/paone/anaconda3/pkgs/libopencv-3.4.2-h7c891bd_1/share/OpenCV/haarcascades/haarcascade_eye.xml')
         mouth_cascade = cv2.CascadeClassifier('/Users/paone/Desktop/OpenCV/haarcascade_mcs_mouth.xml')
@@ -105,6 +110,8 @@ class EditVideo(object):
             os.chdir(self.directoryDestinationFrame)
 
             nameVideo = namePicture.split('.')[0]
+            #arrayRowFileCSV.append(nameVideo) #1 Nome video
+            #arrayRowFileCSV.append(self.frameRate) #2 FPS ATTENZIONE TALE INFORMAZIONE VA PRESA DAL NOME DEL VIDEO
 
             if isResize:
                 if (percentSizeFrame == -1):
@@ -135,6 +142,10 @@ class EditVideo(object):
             #faces = face_cascade.detectMultiScale(gray, 1.3, 5)
             faces_dlib = detector(gray, 0) #dlib detector
 
+            #if len(faces) == 0 and os.path.exists(namePicture + "%d" % count + extension):
+                    #self.frameDelete(namePicture + "%d" % count + extension)
+                    #effectiveCountFrame -= 1
+
             isFaceVisible = False
             for face in faces_dlib:
 
@@ -162,8 +173,21 @@ class EditVideo(object):
                         arrayCoordinate.append((xy[0], xy[1]))
                     arrayTempRow.append(arrayCoordinate) #6 Cooridnate dei landmark (vengono inseriti infondo questo è un array temporaneo)
 
-                   
+                    #Caloclo la distanza dei landmark con la strategia 1 a tutti
+                    arrayDistanzePunti = []
+                    for landmark_numX, xy in enumerate(landmarks_list, start=1):
+                        coordinatePivotX = xy[0]
+                        coordinatePivotY = xy[1]
+                        for landmark_numY, xy in enumerate(landmarks_list, start = landmark_numX + 1):
+                            coordinatePointX = xy[0]
+                            coordinatePointY = xy[1]
+                            #calcolo distanza euclidea
+                            distanza = math.sqrt((coordinatePivotX - coordinatePointX)**2 + (coordinatePivotY - coordinatePointY)**2)
+                            arrayDistanzePunti.append(str(distanza) + ",")
+                    arrayTempRow.append(arrayDistanzePunti) #7 Distanza punti 1 a tutti
+                            
 
+                #self.distanceLandmarks(landmarks_list)
 
                 if isDrawRectangleActive:
                     for landmark_num, xy in enumerate(landmarks_list, start = 1):
@@ -220,9 +244,13 @@ class EditVideo(object):
                     effectiveCountFrameCountiguos = 0
                     arrayImageFrameCountiguos.clear()
 
-           
+            '''if (isFaceVisible):
+                arrayRowFileCSV.append("SI") #3 e' presente un volto
+            else:
+                arrayRowFileCSV.append("NO") #3 e' presente un volto
 
-
+            arrayRowFileCSV.append(str(count)) #4 Frame corrente
+            '''
             os.chdir(self.directoryDestinationFullVideo)
             if (isFaceVisible):
                 cv2.circle(imageFullVideo, (15, 15), 40, (0, 255, 0), -1)
@@ -233,11 +261,23 @@ class EditVideo(object):
 
             cv2.imwrite(namePicture + "%d" % count + extension, imageFullVideo)
             count += 1
+            '''
+            if (len(arrayTempRow) > 1):
+                arrayRowFileCSV.append(arrayTempRow[0]) #5Num di lanmarks
+                arrayRowFileCSV.append(arrayTempRow[1]) #6 Coordiante dei landmarks
+                arrayRowFileCSV.append(arrayTempRow[2]) #7 distanza punti 1 a tutti separati con ,
+            else:
+                arrayRowFileCSV.append("0") #5 Num di landmarks
 
-            
+            arrayGlobalFileCSV.append(arrayRowFileCSV.copy())
+            '''
             success,image = videoToEdit.read()
-
-           
+            '''
+            editVideo.openCSVFile(self.pathCSV, "a", ",", arrayGlobalFileCSV)
+            arrayRowFileCSV.clear()
+            arrayGlobalFileCSV.clear()
+            arrayTempRow.clear()
+            '''
             if showImage:
                 cv2.imshow('image',image)
                 cv2.waitKey(0)
@@ -262,17 +302,61 @@ class EditVideo(object):
         for filename in glob.glob(path + '/*' + extension):
             os.remove(filename)
 
+    #Assembla i frame creati dalla procedura pictureCrate creando un video
+    def videoCreate(self, extensionFrame, nameVideo, directoryVideoSaved):
+
+        os.chdir(directoryVideoSaved)
+
+        image_array = []
+        for filename in sorted(glob.glob(self.directoryDestinationFrame + '/*' + extensionFrame), key=os.path.getmtime):
+            
+            #print("---> " + filename)
+            image = cv2.imread(filename)
+            height, width, layers = image.shape
+            size = (width,height)
+            image_array.append(image)
+        
+        print("<--- Numero Frame inseriti nel video: " + str(len(image_array)) + "--->")
+
+        if len(image_array) == 0:
+            return False
+
+        else:
+            videoName = nameVideo + ".avi"
+            out = cv2.VideoWriter(videoName,cv2.VideoWriter_fourcc(*'DIVX'), self.frameRate, size)
+        
+            for i in range(len(image_array)):
+                out.write(image_array[i])
+
+            out.release()
+            
+            return True
+    #calcolo distanza tra i landmarks
+    #def distanceLandmarks(self, listOfLandmarks):
+    #    for landmark_num, xy in enumerate(listOfLandmarks, start = 1):
+
+
+    #Cancella uno specifico frame
+    def frameDelete(self, nameFrame):
+        os.remove(nameFrame)
+
+    #Cancella tutti i frame creati nel path specificato
+    def picturesDelete(self, path, extension):
+
+        for filename in glob.glob(path + '/*' + extension):
+            os.remove(filename)
+
    
     #Assembla i frame creati dalla procedura pictureCrate creando un video
     def videoFullCreate(self, extensionFrame, nameVideo, directoryVideoSaved):
 
-        os.chdir(self.directoryDestinationFullVideo)
+        os.chdir(self.directoryDestinationVideo)
 
         #image_array = []
         videoName = nameVideo + ".avi"
         out = cv2.VideoWriter(videoName,cv2.VideoWriter_fourcc(*'DIVX'), self.frameRate, (0, 0))
         numFrame = 0
-        for filename in sorted(glob.glob(self.directoryDestinationFullVideo + '/*' + extensionFrame), key=os.path.getmtime):
+        for filename in sorted(glob.glob(self.directoryDestinationVideo + '/*' + extensionFrame), key=os.path.getmtime):
             
             #print("---> " + filename)
             image = cv2.imread(filename)
@@ -309,54 +393,38 @@ class EditVideo(object):
 print("Start...")
 
 editVideo = EditVideo("/Users/paone/Desktop/VideoDataset/frameVideo/Video",  "/Users/paone/Desktop/VideoDataset/frameVideo", 30, 3, 15)
-'''
-path = "/Users/paone/Desktop/prova_video"
+
+path = "/Users/paone/Desktop/prova_video" #path della cartella contenente i video
 numVideo = 0
 nameVideo = ""
-for directory in os.listdir(path):
 
-    nameVideo = ""
-    if directory == "frameVideo":
-        print("passato")
-        pass
-    else:
-        if os.path.isdir(path + "/" + directory):
-            subPath = path + "/" + directory
-            #nameVideo = nameVideo + directory
 
-            for subDirectory in os.listdir(subPath):
-                print("entrato 1")
-                if os.path.isdir(subPath + "/" + subDirectory):
-                    subSubPath = subPath + "/" + subDirectory
-                    #nameVideo = nameVideo + subDirectory
-                    for subDirectory in os.listdir(subSubPath):
-                        print("entrato 2")
-                        if os.path.isdir(subSubPath + "/" + subDirectory):
-                            subPathVideo = subSubPath + "/" + subDirectory
-                            print("entrato 3")
-                            for fileVideo in os.listdir(subPathVideo):
+for fileVideo in os.listdir(path):
                                 print("trovato video")
                                 nameVideo = fileVideo
-                                
+                                print(nameVideo)
                                 if (len(nameVideo.split('_')) >= 4):
                                     frame = nameVideo.split('_')[4]
-                                    frame = nameVideo.split('.')[0]
+                                    print(frame)
+                                    frame = frame.split('.')[0]
+                                    print(frame)
                                     editVideo.setFrameRate(int(frame))
                                     editVideo.setContiguosFrames(3)
-
-                                editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo", ".jpg")
-                                completePathVideo = subPathVideo + "/" + fileVideo
+                                
+                                #editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo", ".jpg")
+                                completePathVideo = path + "/" + fileVideo
                                 print("Video: " + completePathVideo)
                                 isSuccess = editVideo.pictureCreate(completePathVideo, nameVideo, ".jpg", False, True, -1, False)
                                 #isVideoCreated = editVideo.videoCreate(".jpg", nameVideo + str(numVideo)) #Creo un video con i frame rimanenti
                                 print("Fine Video num: " + str(numVideo) + " - " + nameVideo)
                                 if isSuccess:
-                                    editVideo.videoFullCreate(".jpg", nameVideo, editVideo.directoryDestinationFullVideo)
-                                    shutil.move(completePathVideo, "/Users/paone/Desktop/Video_Computati/" + nameVideo)
-                                    numVideo = numVideo + 1
+                                    editVideo.videoFullCreate(".jpg", nameVideo, editVideo.directoryDestinationVideo)
+                                    #shutil.move(completePathVideo, "/Users/paone/Desktop/Video_Computati/" + nameVideo)
+                                    numVideo += 1
 
-'''
-editVideo.picturesDelete("/Users/paone/tirocinio", ".jpg")
-#editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
+     
+                            
+editVideo.picturesDelete("/Users/paone/Desktop/videoDataset/frameVideo", ".jpg")
+editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
 
 print("Fine")
