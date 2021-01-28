@@ -16,7 +16,6 @@ import psutil
 #4 Estrarre solo le 'labbra' dal video - fatto ma commentato
 #5 Implementare la libreria dlib - Fatto (libreria machine learning)
 #6 Ottenere individuare i landmark su ogni singolo frame - Fatto
-#7 creare un file csv che contiene tutte le info raccolte di ogni singolo frame - Fatto
 
 #-------------------
 #Questo script effettua un'estrapolazione dei frame in un video che contengono un volto, scartando tutti quei frame
@@ -56,14 +55,14 @@ class EditVideo(object):
         self.frameRate = frameRate
 
     def setContiguosFrames(self, groupOfContiguosFrame):
-        if (self.frameRate % groupOfContiguosFrame == 0):
-            self.NUM_FRAME_CONTIGUOS = groupOfContiguosFrame
-        elif (self.frameRate % 2 == 0):
-            self.NUM_FRAME_CONTIGUOS = 6
-        elif(self.frameRate % 3 == 0):
-            self.NUM_FRAME_CONTIGUOS = 5
-        else:
-            self.NUM_FRAME_CONTIGUOS = 1
+        '''if (self.frameRate % groupOfContiguosFrame == 0):
+            self.NUM_FRAME_CONTIGUOS = groupOfContiguosFrame'''
+        if (self.frameRate == 30):
+            self.NUM_FRAME_CONTIGUOS = 30 
+        elif(self.frameRate == 25):
+            self.NUM_FRAME_CONTIGUOS = 25 
+        elif(self.frameRate == 24):
+            self.NUM_FRAME_CONTIGUOS = 24
 
   
     def pictureCreate(self, sourceVideo, namePicture, extension, showImage = False, isResize = True, percentSizeFrame = 30, drawRectOnImage = False):
@@ -394,7 +393,7 @@ print("Start...")
 
 editVideo = EditVideo("/Users/paone/Desktop/VideoDataset/frameVideo/Video",  "/Users/paone/Desktop/VideoDataset/frameVideo", 30, 3, 15)
 
-path = "/Users/paone/Desktop/prova_video" #path della cartella contenente i video
+path = "/Users/paone/Desktop/Spagnolo/Uomo/Over_30" #path della cartella contenente i video
 numVideo = 0
 nameVideo = ""
 
@@ -421,9 +420,11 @@ for fileVideo in os.listdir(path):
                                     editVideo.videoFullCreate(".jpg", nameVideo, editVideo.directoryDestinationVideo)
                                     #shutil.move(completePathVideo, "/Users/paone/Desktop/Video_Computati/" + nameVideo)
                                     numVideo += 1
+                                editVideo.picturesDelete("/Users/paone/Desktop/videoDataset/frameVideo", ".jpg")
+                                editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
 
      
-                            
+                
 editVideo.picturesDelete("/Users/paone/Desktop/videoDataset/frameVideo", ".jpg")
 editVideo.picturesDelete("/Users/paone/Desktop/VideoDataset/frameVideo/fullVideo", ".jpg")
 
