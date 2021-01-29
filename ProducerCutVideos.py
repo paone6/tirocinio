@@ -171,19 +171,6 @@ class EditVideo(object):
                     for landmark_num, xy in enumerate(landmarks_list, start=1):
                         arrayCoordinate.append((xy[0], xy[1]))
                     arrayTempRow.append(arrayCoordinate) #6 Cooridnate dei landmark (vengono inseriti infondo questo è un array temporaneo)
-
-                    #Caloclo la distanza dei landmark con la strategia 1 a tutti
-                    arrayDistanzePunti = []
-                    for landmark_numX, xy in enumerate(landmarks_list, start=1):
-                        coordinatePivotX = xy[0]
-                        coordinatePivotY = xy[1]
-                        for landmark_numY, xy in enumerate(landmarks_list, start = landmark_numX + 1):
-                            coordinatePointX = xy[0]
-                            coordinatePointY = xy[1]
-                            #calcolo distanza euclidea
-                            distanza = math.sqrt((coordinatePivotX - coordinatePointX)**2 + (coordinatePivotY - coordinatePointY)**2)
-                            arrayDistanzePunti.append(str(distanza) + ",")
-                    arrayTempRow.append(arrayDistanzePunti) #7 Distanza punti 1 a tutti
                             
 
                 #self.distanceLandmarks(landmarks_list)
