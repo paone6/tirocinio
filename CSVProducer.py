@@ -44,8 +44,10 @@ def print_csv_file(filename, matrix):
     """
     with open(str(filename)+".csv", mode='w', newline='') as csv_file:  #apre il file csv
         writer = csv.writer(csv_file)
-        for list in matrix:    #per ogni frame del video
-            writer.writerow(list)
+        title = list(range(1,191))
+        writer.writerow(title)
+        for lista in matrix:    #per ogni frame del video
+            writer.writerow(lista)
 
 
 
@@ -102,8 +104,6 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
             distanceMatrixExt.append(distanceMatrix)
             
             
-            
-        
     print_csv_file(videoFile.split(".")[0], distanceMatrixExt)   #Chiama la funzione per stampare la matrice di distanze nell'omonimo file csv       
        
     
