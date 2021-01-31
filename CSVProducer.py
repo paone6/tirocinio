@@ -44,8 +44,8 @@ def print_csv_file(filename, matrix):
     """
     with open(str(filename)+".csv", mode='w', newline='') as csv_file:  #apre il file csv
         writer = csv.writer(csv_file)
-        title = list(range(1,191))
-        writer.writerow(title)
+        #title = list(range(1,191))
+        #writerow(title)
         for lista in matrix:    #per ogni frame del video
             writer.writerow(lista)
 
@@ -74,7 +74,7 @@ destinationPath = "/Users/paone/Desktop/csv_computati"  #Path di destinazione pe
 os.chdir(destinationPath)                             #Cambia la cartella di destinazione in quella di destinationPath
 
 for videoFile in os.listdir(path):     #per ogni file video nella cartella
-    
+    print("-----------Inizio computazione " + videoFile + "----------------")
     cap= cv2.VideoCapture(path + "/" + videoFile)
     distanceMatrixExt = []
     while(cap.isOpened()):
@@ -105,7 +105,8 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
             
             
     print_csv_file(videoFile.split(".")[0], distanceMatrixExt)   #Chiama la funzione per stampare la matrice di distanze nell'omonimo file csv       
-       
+    print("-----------Conclusa computazione " + videoFile + "----------------")
+  
     
 cap.release()
 cv2.destroyAllWindows()

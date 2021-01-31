@@ -17,12 +17,18 @@ def load_my_dataset():
             for row in csv_reader:
                 new_row = [float(i) for i in row]
                 matrix.append(new_row)
-            targets.append(file.split('_')[0])
+            targets.append(int(file.split('_')[0]))
             dataset.append(matrix)
     return Bunch(data = dataset, target = targets)
 
 b = load_my_dataset()
 print(b.data)
+print(len(b.data[0]))
+print(len(b.data[1]))
+print(len(b.data[2]))
+print(len(b.data[3]))
+
+print(len(b.data))
 print(b.target)
 
 
