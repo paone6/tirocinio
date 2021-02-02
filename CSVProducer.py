@@ -27,6 +27,8 @@ from collections import OrderedDict
 # landmark facciali per ogni regione del viso
 FACIAL_LANDMARKS_IDXS = OrderedDict([
 	("mouth", (48, 68)),
+    ("mouth_intern", (60, 68)),
+    ("mouth_extern", (48, 60)),
 	("right_eyebrow", (17, 22)),
 	("left_eyebrow", (22, 27)),
 	("right_eye", (36, 42)),
@@ -95,13 +97,15 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
             i = 1
             distanceMatrix = []
 
-            xm,ym = FACIAL_LANDMARKS_IDXS["mouth"]  #Prende solo i landmark per le labbra
-            for (x, y) in shape[xm:ym+1]:
+            xm,ym = FACIAL_LANDMARKS_IDXS["mouth_intern"]  #Prende solo i landmark per le labbra
+            for (x, y) in shape[xm:ym]:
                 #cv2.circle(image, (x, y), 1, (0, 0, 255), -1)  #Disegna i landmark sull'immagine
                 for (x2, y2) in shape[xm+i:ym]:
                     distanceMatrix.append(np.linalg.norm(np.array(x,y) - np.array(x2,y2)))
                 i+=1
             distanceMatrixExt.append(distanceMatrix)
+            #cv2.imshow('Window', image)
+            #cv2.waitKey()
             
             
     print_csv_file(videoFile.split(".")[0], distanceMatrixExt)   #Chiama la funzione per stampare la matrice di distanze nell'omonimo file csv       
