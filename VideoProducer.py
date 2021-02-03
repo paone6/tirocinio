@@ -24,19 +24,64 @@ from collections import OrderedDict
 detector = dlib.get_frontal_face_detector()  #inizializza il face detector(HOG-based) della libreria dlib
 predictor = dlib.shape_predictor("/Users/paone/Desktop/VideoDataset/shape_predictor_68_face_landmarks.dat")  #crea il predictor per i landmark del viso
 
+CONTIGUOUS_SECONDS = 5
+
+def save_video(contiguous_frames, where_to_save, framerate):
+    
+    os.chdir(where_to_save)                             #Cambia la cartella di destinazione in quella di destinationPath
+
+    print(contiguous_frames[0][0])
+    #img = cv2.imread(contiguous_frames[0][0])
+    height, width= len(contiguous_frames[0][0]), len(contiguous_frames[0][0][0])
+    size = (width,height)
+    print(str(size))
+    print(type(framerate))
+    
+    if(len(contiguous_frames) >=1):
+        out = cv2.VideoWriter('project.avi',cv2.VideoWriter_fourcc(*'DIVX'), int(framerate), size)
+    
+
+        for i in range(3):
+            for image in contiguous_frames[i]:
+                print("pure fatto")
+                out.write(image)
+        out.release()
+
 
 def create_videos(path, video, where_to_save):
-    num_frame = video.split('_')[4]
-    frame_contigui = num_frame * 5
+    print("Apertura file " + video)
+    num_frame = video.split('.')[0].split('_')[4]
+    print("Num frame = " + str(num_frame))
+    frame_contigui = int(num_frame) * CONTIGUOUS_SECONDS
+    print("Grandezza sequenze = " + str(frame_contigui))
     cap= cv2.VideoCapture(path + "/" + videoFile)
+    contiguous_sequences = []  #contiene array di 5 secondi di sequenze ciascuno 
+    contiguous_frames = []     #contiene sequenze continue di frame di lunghezza massima 5 secondi
+
     while(cap.isOpened()):
+        print(str(len(contiguous_frames)))
+        if(len(contiguous_frames) == frame_contigui):
+            print("Trovata sequenza di " + str(CONTIGUOUS_SECONDS) + " secondi")
+            contiguous_sequences.append(contiguous_frames)
+            contiguous_frames = []
         
         ret, image = cap.read()
 
         if ret == False:
             break
 
+        #cv2.imshow('image',image)
+        #cv2.waitKey(0)
         rects = detector(image, 1)
+        if(len(rects) == 1):
+            print("Aggiunto frame")
+            contiguous_frames.append(image)
+        else:
+            print("Frame senza un soggetto visibile, sequenza cancellata")
+            contiguous_frames = []
+
+    save_video(contiguous_sequences, where_to_save, num_frame)       
+
 
 
 

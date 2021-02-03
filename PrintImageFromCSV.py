@@ -31,7 +31,9 @@ def print_image(array, nome):
     print(str(img_w) + " " + str(img_h))
     #data = np.zeros((img_h, img_w, 3), dtype=np.uint8)
     #data[100, 100] = [255, 0, 0]
-    img = Image.fromarray(array, 'RGB')
+    for row in array:
+        print(row)
+    img = Image.fromarray(array,'L')
     img.save(nome.split('.')[0] + ".png")
  
 
