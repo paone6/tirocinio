@@ -26,26 +26,27 @@ predictor = dlib.shape_predictor("/Users/paone/Desktop/VideoDataset/shape_predic
 
 CONTIGUOUS_SECONDS = 5
 
-def save_video(contiguous_frames, where_to_save, framerate):
+def save_video(contiguous_frames, where_to_save, framerate, name):
     
     os.chdir(where_to_save)                             #Cambia la cartella di destinazione in quella di destinationPath
 
-    print(contiguous_frames[0][0])
     #img = cv2.imread(contiguous_frames[0][0])
     height, width= len(contiguous_frames[0][0]), len(contiguous_frames[0][0][0])
     size = (width,height)
-    print(str(size))
-    print(type(framerate))
-    
-    if(len(contiguous_frames) >=1):
-        out = cv2.VideoWriter('project.avi',cv2.VideoWriter_fourcc(*'DIVX'), int(framerate), size)
+    print("Dimensione video = " + str(size))
+    print("Numero di frame al secondo = " + str(framerate))
+    label = 1
+    if(len(contiguous_frames) >=3):
+        for i in range(len(contiguous_frames) // 3):
+            out = cv2.VideoWriter(str(name) + "_" + str(label) + ".avi",cv2.VideoWriter_fourcc(*'DIVX'), int(framerate), size)
     
 
-        for i in range(3):
-            for image in contiguous_frames[i]:
-                print("pure fatto")
-                out.write(image)
-        out.release()
+            for j in range(i*3,i*3+3):
+                for image in contiguous_frames[j]:
+                    out.write(image)
+            out.release()   
+            print("Completata computazione video: " + str(name) + "_" + str(label))
+            label+=1
 
 
 def create_videos(path, video, where_to_save):
@@ -80,7 +81,7 @@ def create_videos(path, video, where_to_save):
             print("Frame senza un soggetto visibile, sequenza cancellata")
             contiguous_frames = []
 
-    save_video(contiguous_sequences, where_to_save, num_frame)       
+    save_video(contiguous_sequences, where_to_save, num_frame, video.split('.')[0])       
 
 
 
