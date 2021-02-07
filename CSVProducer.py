@@ -71,8 +71,8 @@ detector = dlib.get_frontal_face_detector()  #inizializza il face detector(HOG-b
 predictor = dlib.shape_predictor("/Users/paone/Desktop/VideoDataset/shape_predictor_68_face_landmarks.dat")  #crea il predictor per i landmark del viso
 
 
-path = "/Users/paone/Desktop/prova_video"    #Path della cartella contenente i video da 15 secondi
-destinationPath = "/Users/paone/Desktop/csv_computati"  #Path di destinazione per i video csv
+path = "D:/Video_15_Secondi/senza_csv_8_land"    #Path della cartella contenente i video da 15 secondi
+destinationPath = "D:/csv_video_15_secondi_8_landmark"  #Path di destinazione per i video csv
 os.chdir(destinationPath)                             #Cambia la cartella di destinazione in quella di destinationPath
 
 for videoFile in os.listdir(path):     #per ogni file video nella cartella
@@ -82,9 +82,11 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
     while(cap.isOpened()):
         ret, image = cap.read()
 
-
         if ret == False:
             break
+            
+        image = cv2.resize(image, dsize=(640, 360), interpolation=cv2.INTER_CUBIC)
+
             
         rects = detector(image, 1)
             

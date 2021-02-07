@@ -24,29 +24,33 @@ from collections import OrderedDict
 detector = dlib.get_frontal_face_detector()  #inizializza il face detector(HOG-based) della libreria dlib
 predictor = dlib.shape_predictor("/Users/paone/Desktop/VideoDataset/shape_predictor_68_face_landmarks.dat")  #crea il predictor per i landmark del viso
 
-CONTIGUOUS_SECONDS = 5
+CONTIGUOUS_SECONDS = 5 #numero di secondi consecutivi necessari
+MAX_PER_VIDEO = 3       #numero di video massimo da produrre
 
 def save_video(contiguous_frames, where_to_save, framerate, name):
     
     os.chdir(where_to_save)                             #Cambia la cartella di destinazione in quella di destinationPath
 
-    #img = cv2.imread(contiguous_frames[0][0])
-    height, width= len(contiguous_frames[0][0]), len(contiguous_frames[0][0][0])
-    size = (width,height)
-    print("Dimensione video = " + str(size))
-    print("Numero di frame al secondo = " + str(framerate))
-    label = 1
-    if(len(contiguous_frames) >=3):
-        for i in range(len(contiguous_frames) // 3):
-            out = cv2.VideoWriter(str(name) + "_" + str(label) + ".avi",cv2.VideoWriter_fourcc(*'DIVX'), int(framerate), size)
-    
+    if(len(contiguous_frames) > 0):
+        
 
-            for j in range(i*3,i*3+3):
-                for image in contiguous_frames[j]:
-                    out.write(image)
-            out.release()   
-            print("Completata computazione video: " + str(name) + "_" + str(label))
-            label+=1
+        #img = cv2.imread(contiguous_frames[0][0])
+        height, width= len(contiguous_frames[0][0]), len(contiguous_frames[0][0][0])
+        size = (width,height)
+        print("Dimensione video = " + str(size))
+        print("Numero di frame al secondo = " + str(framerate))
+        label = 1
+        if(len(contiguous_frames) >=3):
+            for i in range(len(contiguous_frames) // 3):
+                out = cv2.VideoWriter(str(name) + "_" + str(label) + ".avi",cv2.VideoWriter_fourcc(*'DIVX'), int(framerate), size)
+        
+
+                for j in range(i*3,i*3+3):
+                    for image in contiguous_frames[j]:
+                        out.write(image)
+                out.release()   
+                print("Completata computazione video: " + str(name) + "_" + str(label))
+                label+=1
 
 
 def create_videos(path, video, where_to_save):
@@ -64,14 +68,16 @@ def create_videos(path, video, where_to_save):
         if(len(contiguous_frames) == frame_contigui):
             print("Trovata sequenza di " + str(CONTIGUOUS_SECONDS) + " secondi")
             contiguous_sequences.append(contiguous_frames)
+            print("Sono presenti " + str(len(contiguous_sequences)) + " sequenze nell'array")
             contiguous_frames = []
         
-        ret, image = cap.read()
-
+        ret, image_o = cap.read()
+        image = cv2.resize(image_o, dsize=(640, 360), interpolation=cv2.INTER_CUBIC)
         if ret == False:
             break
 
-        #cv2.imshow('image',image)
+        #cv2.imshow('before',image_o)
+        #cv2.imshow('after',image)
         #cv2.waitKey(0)
         rects = detector(image, 1)
         if(len(rects) == 1):
@@ -81,6 +87,10 @@ def create_videos(path, video, where_to_save):
             print("Frame senza un soggetto visibile, sequenza cancellata")
             contiguous_frames = []
 
+        if(len(contiguous_sequences) >= (MAX_PER_VIDEO * 3)):
+            print("Prodotti " + str(MAX_PER_VIDEO) + " video da questo, proseguo col prossimo")
+            break
+
     save_video(contiguous_sequences, where_to_save, num_frame, video.split('.')[0])       
 
 
@@ -88,8 +98,8 @@ def create_videos(path, video, where_to_save):
 
 
 
-path = "/Users/paone/Desktop/prova_video"    #Path della cartella contenente i video da 15 secondi
-destinationPath = "/Users/paone/Desktop/csv_computati"  #Path di destinazione per i video csv
+path = "D:/da_computare"    #Path della cartella contenente i video integrali
+destinationPath = "D:/Video_15_Secondi/senza_csv"  #Path di destinazione per i video da 15 secondi
 
 for videoFile in os.listdir(path): 
     create_videos(path, videoFile, destinationPath)
