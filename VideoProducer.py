@@ -99,7 +99,7 @@ def create_videos(path, video, where_to_save):
 
 
 path = "D:/da_computare"    #Path della cartella contenente i video integrali
-destinationPath = "D:/Video_15_Secondi/senza_csv"  #Path di destinazione per i video da 15 secondi
+destinationPath = "D:/Video_15_Secondi/senza_csv_8_land"  #Path di destinazione per i video da 15 secondi
 
 for videoFile in os.listdir(path): 
     create_videos(path, videoFile, destinationPath)
