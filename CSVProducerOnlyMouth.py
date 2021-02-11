@@ -1,7 +1,8 @@
 # -----------------------------------------------------------------------------
 # Script che si occupa di prendere video da 15 secondi con un viso presente
-# e per ogni video produce un file csv contenente le distanze euclidee 
-# tra i landmark della bocca(ogni rigo del file csv rappresenta un frame del video)
+# e per ogni fotogramma del video, isola le labbra rendendole della stessa 
+# dimensione e stampa le distanze euclidee.
+# Inoltre stampa il video solo con le labbra
 #
 # Mario Paone
 # ------------------------------------------------------------------------------
@@ -37,7 +38,8 @@ FACIAL_LANDMARKS_IDXS = OrderedDict([
 	("jaw", (0, 17))
 ])
 
-
+# Prende una stringa nome ed una matrice di distanze uclidee
+# e stampa la matrice 
 def print_csv_file(filename, matrix):
     """
     Questa funzione prende una stringa nome ed una matrice
@@ -86,7 +88,6 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
             
         #image = cv2.resize(image, dsize=(640, 360), interpolation=cv2.INTER_CUBIC)
 
-        
             
         rects = detector(image, 1)
             
@@ -95,9 +96,16 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
             
             shape = predictor(image, rect)    #Determina i landmark del viso
             shape = shape_to_np(shape)        #Converte i landmark in coordinate (x, y) in un array NumPy  
-                
+            print(type(image))    
             i = 1
             distanceMatrix = []
+            print("Stampo robe: " + str(FACIAL_LANDMARKS_IDXS["mouth"][0]) + " " + str(FACIAL_LANDMARKS_IDXS["mouth"][1]))
+            (x, y, w, h) = cv2.boundingRect(np.array([shape[FACIAL_LANDMARKS_IDXS["mouth"][0]:FACIAL_LANDMARKS_IDXS["mouth"][1]]]))
+		    #roi =  np.   #image[y:y + h, x:x + w]
+		    #roi = cv2.resize(image, dsize=(300, 200), interpolation=cv2.INTER_CUBIC)
+            #cv2.imshow('Window', image)
+            #cv2.imshow('Mouth',roi)
+            cv2.waitKey()
 
             xm,ym = FACIAL_LANDMARKS_IDXS["mouth_intern"]  #Prende solo i landmark per le labbra
             for (x, y) in shape[xm:ym]:
@@ -106,8 +114,7 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
                     distanceMatrix.append(np.linalg.norm(np.array(x,y) - np.array(x2,y2)))
                 i+=1
             distanceMatrixExt.append(distanceMatrix)
-            #cv2.imshow('Window', image)
-            #cv2.waitKey()
+            
             
             
     print_csv_file(videoFile.split(".")[0], distanceMatrixExt)   #Chiama la funzione per stampare la matrice di distanze nell'omonimo file csv       

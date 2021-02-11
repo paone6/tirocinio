@@ -1,7 +1,6 @@
 # -----------------------------------------------------------------------------
 # Script che prende il dataset dalla cartella contenente i file csv,
-# setta correttamente i dati li restituisce sotto forma di Bunch contenente
-# data e target
+# e utilizzando PCA diminuisce il numero di colonne per ogni file
 #
 # Mario Paone
 # ------------------------------------------------------------------------------
@@ -15,8 +14,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
 
-NUM_COMPONENTI = 11
-NUM_FRAMES = 350
+NUM_COMPONENTI = 11         #Num di colonne a cui diminuire tramite PCA
+NUM_FRAMES = 350            #Numero massimo di righe da prendere
 
 path = "D:/prova_pca"  #Path della cartella contenente il dataset
 def load_dataset():
