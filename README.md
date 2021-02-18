@@ -15,10 +15,12 @@ movimenti articolatori delle labbra.
 # Come iniziare
 Vedere prima la sezione "come installare".
 Una volta installato, il progetto funziona in questo modo:
+
 1) Allo script 'VideoProducer.py' viene indicato il path di una cartella contenente i video originali, lo script si occupa di      salvare per ogni video orignale un sottoinsieme di video di 15 secondi l'uno in cui vi sia sempre il viso del soggetto ben visibile per un numero di secondi prestabilito.
 Per modificare il numero di secondi contigui che ogni sequenza deve avere si deve modificare la costante CONTIGUOUS_SECONDS(che sia un divisore di 15)
 Per modificare il numero massimo di video da 15 secondi prodotti dallo script si deve modificare la costante MAX_PER_VIDEO.
 Per impostare la cartella sorgente dei video e quella di destinazione modificare path e destinationPath.
+
 2)Una volta prodotti i video da 15 secondi si procede con lo script 'CSVProducerOnlyMouth' che si occupa di prendere i suddetti video e per ognuno di questi:
     -Stampa il video con solo le labbra senza i landmark
     -Stampa il video con solo le labbra ed i landmark 
@@ -28,7 +30,10 @@ Per decretare quali landmark prendere bisogna modificare l'istruzione alla riga 
     - 'intern_mouth' prende gli 8 landmark dell'interno labbra
     - 'mouth' prende tutti e 20 i landmark delle labbra
 Per modificare la cartella sorgente dei video e quelle di destinazione bisogna modificare i diversi path nel file.
-3)Nel file 'my_dataset.py' va modificato il path della cartella contente i file csv che formeranno il nostro dataset. (Attenzione: è importante che il dataset sia bilanciato)
+
+3)Nel file 'my_dataset.py' va modificato il path della cartella contente i file csv che formeranno il nostro dataset. (Attenzione: 
+è importante che il dataset sia bilanciato)
+
 4)Tramite il file 'Classifier.ipynb' viene richiamato il metodo load_dataset() di my_dataset e viene testato il risultato con i diversi classificatori.
 
 NB. I file presenti nella cartella che non sono descritto nei passaggi precedenti sono legati a tentativi di implementazione precedenti al quale è stata poi preferita la strategia descritta sopra. Per completezza in seguito vengono brevemente descritti.
