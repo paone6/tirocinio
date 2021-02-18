@@ -135,7 +135,7 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
             new = cv2.resize(roi, dsize=SIZE, interpolation=cv2.INTER_CUBIC)    #Dà al frame dimensione SIZE
             video_array.append(new)     #Aggiunde il frame all'array dei frame del video
             
-            xm,ym = FACIAL_LANDMARKS_IDXS["mouth_intern"]  #Prende solo i landmark per le labbra
+            xm,ym = FACIAL_LANDMARKS_IDXS["mouth_extern"]  #Prende solo i landmark per le labbra
             new_shape = []
             new_copy = np.copy(new)     #copia l'immagine
             for (xa, ya) in shape[xm:ym]:       #per ogni coppia di coordinate scelta
@@ -163,7 +163,7 @@ for videoFile in os.listdir(path):     #per ogni file video nella cartella
                 i+=1
             distanceMatrixExt.append(distanceMatrix)
             
-    #save_video(video_array, videoFile.split('.')[0],video_destination_path)            #Chiama la funzione per stampare il video della labbra senza landmark
+    save_video(video_array, videoFile.split('.')[0],video_destination_path)            #Chiama la funzione per stampare il video della labbra senza landmark
     save_video(video_array_landmark, videoFile.split('.')[0],video_destination_path_land)     #Chiama la funzione per stampare il video della labbra con i landmark                 
     print_csv_file(videoFile.split(".")[0] + "_m", distanceMatrixExt)   #Chiama la funzione per stampare la matrice di distanze nell'omonimo file csv       
     print("-----------Conclusa computazione " + videoFile + "----------------")

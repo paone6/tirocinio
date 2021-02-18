@@ -25,7 +25,7 @@ detector = dlib.get_frontal_face_detector()  #inizializza il face detector(HOG-b
 predictor = dlib.shape_predictor("/Users/paone/Desktop/VideoDataset/shape_predictor_68_face_landmarks.dat")  #crea il predictor per i landmark del viso
 
 CONTIGUOUS_SECONDS = 5 #numero di secondi consecutivi necessari
-MAX_PER_VIDEO = 3       #numero di video massimo da produrre
+MAX_PER_VIDEO = 5       #numero di video massimo da produrre
 
 def save_video(contiguous_frames, where_to_save, framerate, name):
     """
@@ -108,7 +108,7 @@ def create_videos(path, video, where_to_save):
 
 
 path = "D:/da_computare"    #Path della cartella contenente i video integrali
-destinationPath = "D:/Video_15_Secondi/senza_csv_8_land"  #Path di destinazione per i video da 15 secondi
+destinationPath = "D:/Video_15_Secondi/destinazione"  #Path di destinazione per i video da 15 secondi
 
 for videoFile in os.listdir(path): 
     create_videos(path, videoFile, destinationPath)

@@ -27,6 +27,7 @@ def load_dataset():
             for row in csv_reader:
                 if(line_count <= MAX_LINES):        #Inserisce MAX_LINES righe nel dataset
                     new_row = [float(i) for i in row]       #Converte in float i valori del file csv
+                    for element in new_row:
                         data.append(element)            #Aggiunge tutti i valori allo stesso array in modo da avere nel Dataset ogni riga (NumpyArray) rappresenti un file csv
                     line_count+=1
             dataset.append(np.array(data))                  
